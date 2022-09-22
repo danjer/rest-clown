@@ -12,10 +12,9 @@ class ResourceInstance(IResourceInstance[Dict[str, Any]]):
 
 
 class ResourceList(IResourceList):
-
     def deserialize_response(self, response: requests.Response):
         return response.json()
 
 
-class Resource(IResource[ResourceInstance]):
+class Resource(IResource[ResourceInstance, ResourceList]):
     pass

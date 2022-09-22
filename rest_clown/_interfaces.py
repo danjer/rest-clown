@@ -9,8 +9,12 @@ RL = TypeVar("RL", bound="IResourceList")
 
 
 class IResourceList(ABC, Generic[T]):
-
-    def __init__(self, session, url, nested_resources: Optional[Sequence[Tuple[str, "IResource"]]]):
+    def __init__(
+        self,
+        session,
+        url,
+        nested_resources: Optional[Sequence[Tuple[str, "IResource"]]],
+    ):
         self._session = session
         self._nested_resources = nested_resources
         self._url = url
@@ -32,12 +36,12 @@ class IResourceList(ABC, Generic[T]):
 
 class IResourceInstance(ABC, Generic[T]):
     def __init__(
-            self,
-            session: requests.Session,
-            url: str,
-            pk: Optional[str] = None,
-            data: Optional[T] = None,
-            nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
+        self,
+        session: requests.Session,
+        url: str,
+        pk: Optional[str] = None,
+        data: Optional[T] = None,
+        nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
     ):
         self._session = session
         self._url = url
@@ -103,14 +107,14 @@ class IResourceInstance(ABC, Generic[T]):
         raise NotImplementedError
 
 
-class IResource(ABC, Generic[R]):
+class IResource(ABC, Generic[R, RL]):
     def __init__(
-            self,
-            session: requests.Session,
-            url: str,
-            resource_instance_class: Type[R],
-            resource_list_class: Optional[Type[IResourceList]] = None,
-            nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
+        self,
+        session: requests.Session,
+        url: str,
+        resource_instance_class: Type[R],
+        resource_list_class: Optional[Type[RL]] = None,
+        nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
     ):
         self._session = session
         self._url = url
@@ -134,7 +138,11 @@ class IResource(ABC, Generic[R]):
             self._session, self._url, nested_resources=self._nested_resources, data=data
         )
 
-    def list(self):
+    def list(self) -> RL:
         if not self._resource_list_class:
-            raise RestClownException("Must set the resource_list_class to call this operations")
-        return self._resource_list_class(self._session, self._url, self._nested_resources)
+            raise RestClownException(
+                "Must set the resource_list_class to call this operations"
+            )
+        return self._resource_list_class(
+            self._session, self._url, self._nested_resources
+        )

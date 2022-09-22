@@ -31,9 +31,9 @@ def resource_with_resource_list(mocker):
     session = mocker.Mock()
     return Resource(
         session,
-        'http://somehost.nl/resource',
+        "http://somehost.nl/resource",
         ResourceInstance,
-        resource_list_class=ResourceList
+        resource_list_class=ResourceList,
     )
 
 
@@ -77,7 +77,7 @@ def test_nested_resource_setup(resource_with_nested_resource):
         "3"
     )
     assert (
-            some_resource_instance.url == "http://somehost.nl/resource/3/nestedresource/3/"
+        some_resource_instance.url == "http://somehost.nl/resource/3/nestedresource/3/"
     )
 
 
