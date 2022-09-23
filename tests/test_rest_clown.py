@@ -12,7 +12,9 @@ def resource(mocker):
 @pytest.fixture
 def nested_resource(mocker):
     session = mocker.Mock()
-    return Resource(session, "/nestedresource/", ResourceInstance)
+    return Resource(
+        session, "/nestedresource/", ResourceInstance, resource_list_class=ResourceList
+    )
 
 
 @pytest.fixture
@@ -27,12 +29,13 @@ def resource_with_nested_resource(nested_resource, mocker):
 
 
 @pytest.fixture
-def resource_with_resource_list(mocker):
+def resource_with_resource_list(nested_resource, mocker):
     session = mocker.Mock()
     return Resource(
         session,
         "http://somehost.nl/resource",
         ResourceInstance,
+        nested_resources=[("nested_resource", nested_resource)],
         resource_list_class=ResourceList,
     )
 
@@ -72,13 +75,18 @@ def test_resolve_on_unsaved_instance_raises_rest_clown_exception(resource):
         some_unsaved_instance.refresh()
 
 
-def test_nested_resource_setup(resource_with_nested_resource):
+def test_nested_resource_setup_without_list_class(resource_with_nested_resource):
     some_resource_instance = resource_with_nested_resource.get("3").nested_resource.get(
         "3"
     )
     assert (
         some_resource_instance.url == "http://somehost.nl/resource/3/nestedresource/3/"
     )
+
+
+def test_nested_resource_setup_with_list_class(resource_with_resource_list):
+    some_resource_instance = resource_with_resource_list.get("3")
+    assert some_resource_instance.nested_resource._resource_list_class == ResourceList
 
 
 def test_list_operation_not_allowed(resource_with_nested_resource):

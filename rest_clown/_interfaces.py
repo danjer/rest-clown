@@ -71,7 +71,10 @@ class IResourceInstance(ABC, Generic[T]):
         session = resource._session
         url = f"{self._url}{self._pk}{resource._url}"
         instance_class = resource._resource_instance_class
-        return type(resource)(session, url, instance_class)
+        list_class = resource._resource_list_class
+        return type(resource)(
+            session, url, instance_class, resource_list_class=list_class
+        )
 
     def resolve(self):
         if not self._pk:
