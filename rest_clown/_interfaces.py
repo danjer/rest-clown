@@ -10,11 +10,11 @@ RL = TypeVar("RL", bound="IResourceList")
 
 class IResourceList(ABC, Generic[T]):
     def __init__(
-        self,
-        session,
-        url,
-        nested_resources: Optional[Sequence[Tuple[str, "IResource"]]],
-        params: Optional[Dict[str, str]] = None
+            self,
+            session,
+            url,
+            nested_resources: Optional[Sequence[Tuple[str, "IResource"]]],
+            params: Optional[Dict[str, str]] = None
     ):
         self._session = session
         self._nested_resources = nested_resources
@@ -38,12 +38,12 @@ class IResourceList(ABC, Generic[T]):
 
 class IResourceInstance(ABC, Generic[T]):
     def __init__(
-        self,
-        session: requests.Session,
-        url: str,
-        pk: Optional[str] = None,
-        data: Optional[T] = None,
-        nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
+            self,
+            session: requests.Session,
+            url: str,
+            pk: Optional[str] = None,
+            data: Optional[T] = None,
+            nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
     ):
         self._session = session
         self._url = url
@@ -91,6 +91,13 @@ class IResourceInstance(ABC, Generic[T]):
             response = self._create()
         return self.post_save(response)
 
+    def delete(self) -> Any:
+        if not self._pk:
+            raise RestClownException("Cant delete unsaved instance")
+        url = f"{self._url}{self._pk}/"
+        response = self._session.delete(url)
+        return self.post_delete(response)
+
     def _update(self):
         url = f"{self._url}{self._pk}/"
         json_data = self.serialize_data(self.data)
@@ -101,6 +108,9 @@ class IResourceInstance(ABC, Generic[T]):
         return self._session.post(self._url, json=json_data)
 
     def post_save(self, response: requests.Response) -> Any:
+        pass
+
+    def post_delete(self, response: requests.Response) -> Any:
         pass
 
     @abstractmethod
@@ -114,12 +124,12 @@ class IResourceInstance(ABC, Generic[T]):
 
 class IResource(ABC, Generic[R, RL]):
     def __init__(
-        self,
-        session: requests.Session,
-        url: str,
-        resource_instance_class: Type[R],
-        resource_list_class: Optional[Type[RL]] = None,
-        nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
+            self,
+            session: requests.Session,
+            url: str,
+            resource_instance_class: Type[R],
+            resource_list_class: Optional[Type[RL]] = None,
+            nested_resources: Optional[Sequence[Tuple[str, "IResource"]]] = None,
     ):
         self._session = session
         self._url = url
