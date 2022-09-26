@@ -97,3 +97,5 @@ def test_list_operation_not_allowed(resource_with_nested_resource):
 def test_list_operation_allowed(resource_with_resource_list):
     list_instance = resource_with_resource_list.list()
     assert type(list_instance) == ResourceList
+
+

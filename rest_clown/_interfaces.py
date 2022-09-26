@@ -14,11 +14,13 @@ class IResourceList(ABC, Generic[T]):
         session,
         url,
         nested_resources: Optional[Sequence[Tuple[str, "IResource"]]],
+        params: Optional[Dict[str, str]] = None
     ):
         self._session = session
         self._nested_resources = nested_resources
         self._url = url
         self._data: Optional[T] = None
+        self._params = params
 
     @property
     def data(self) -> T:
@@ -27,7 +29,7 @@ class IResourceList(ABC, Generic[T]):
         return self._data
 
     def resolve(self):
-        return self._session.get(self._url)
+        return self._session.get(self._url, params=self._params)
 
     @abstractmethod
     def deserialize_response(self, r) -> T:
@@ -141,11 +143,11 @@ class IResource(ABC, Generic[R, RL]):
             self._session, self._url, nested_resources=self._nested_resources, data=data
         )
 
-    def list(self) -> RL:
+    def list(self, params=None) -> RL:
         if not self._resource_list_class:
             raise RestClownException(
                 "Must set the resource_list_class to call this operations"
             )
         return self._resource_list_class(
-            self._session, self._url, self._nested_resources
+            self._session, self._url, self._nested_resources, params
         )
